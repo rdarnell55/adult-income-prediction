@@ -1,6 +1,24 @@
-<<<<<<< HEAD
-A machine learning model that predicts whether an individual earns more than $50,000 per year based on demographic and employment-related features from the U.S. Census.
-=======
-# adult-income-prediction
-A machine learning model that predicts whether an individual earns more than $50,000 per year based on demographic and employment-related features from the U.S. Census.
->>>>>>> f3ef065f2415d1ca34f576f24c2807c25d52a5bc
+# Adult Income Prediction
+
+This project uses machine learning to predict whether a person earns more than $50K/year based on U.S. Census data.
+
+## Dataset
+
+- **Source:** [UCI Adult Dataset](https://archive.ics.uci.edu/ml/datasets/adult)
+- **Problem Type:** Binary Classification
+
+## Tech Stack
+
+- Python, Pandas, Scikit-learn
+- Flask for deployment
+- Docker, GitHub Actions, Heroku, AWS SageMaker, Kubernetes
+
+## Workflow
+
+1. Data exploration and modeling in Jupyter
+2. Model saved as `.pkl`
+3. Deployment with Flask
+4. Containerized using Docker
+5. Deployed to Heroku with CI/CD
+6. Re-deployed on AWS SageMaker
+7. Final deployment on Kubernetes

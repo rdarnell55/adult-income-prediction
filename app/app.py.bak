@@ -1,0 +1,70 @@
+# =============================================================================
+# Flask Web App to Deploy ML Model - Adult Income Prediction
+# -----------------------------------------------------------------------------
+# This Flask app loads a trained Logistic Regression model and scaler
+# to predict whether a user earns more than $50K/year based on input features.
+#
+# It exposes a simple web interface for input and displays the prediction.
+# =============================================================================
+
+from flask import Flask, request, render_template
+import numpy as np
+import joblib
+import os
+
+# --- Create Flask App Instance ---
+app = Flask(__name__)
+
+# --- Load Trained Model and Scaler ---
+# These were saved using joblib from the notebook
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "../model/model.pkl")
+SCALER_PATH = os.path.join(os.path.dirname(__file__), "../model/preprocess.pkl")
+
+model = joblib.load(MODEL_PATH)
+scaler = joblib.load(SCALER_PATH)
+
+# --- Define Homepage Route ---
+@app.route('/')
+def home():
+    return render_template('index.html')  # Simple HTML form to collect user input
+
+# --- Define Prediction Route (POST) ---
+@app.route('/predict', methods=['POST'])
+def predict():
+    # Collect data from HTML form
+    try:
+        # Extract values from form in correct order
+        input_features = [
+            float(request.form['age']),
+            float(request.form['fnlwgt']),
+            float(request.form['education_num']),
+            float(request.form['capital_gain']),
+            float(request.form['capital_loss']),
+            float(request.form['hours_per_week']),
+            int(request.form['workclass']),
+            int(request.form['marital_status']),
+            int(request.form['occupation']),
+            int(request.form['relationship']),
+            int(request.form['race']),
+            int(request.form['sex']),
+            int(request.form['native_country']),
+            int(request.form['education']),
+        ]
+
+        # Convert input to numpy array and scale it
+        final_input = scaler.transform([input_features])
+
+        # Make prediction
+        prediction = model.predict(final_input)[0]
+
+        # Translate prediction to readable output
+        result = ">50K" if prediction == 1 else "<=50K"
+
+        return render_template('index.html', prediction_text=f"Predicted Income: {result}")
+
+    except Exception as e:
+        return render_template('index.html', prediction_text=f"Error: {str(e)}")
+
+# --- Run the Flask App ---
+if __name__ == "__main__":
+    app.run(debug=True)

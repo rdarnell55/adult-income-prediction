@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Adult Income Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem auto;
+            max-width: 700px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.5rem;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        input[type="submit"] {
+            margin-top: 2rem;
+            padding: 0.75rem;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .result {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Predict Income Level</h1>
+
+    <form action="/predict" method="post">
+        <label>Age:</label>
+        <input type="number" name="age" required>
+
+        <label>Education Level:</label>
+        <select name="education" required>
+            <option value="0">Preschool</option>
+            <option value="1">1st-4th</option>
+            <option value="2">5th-6th</option>
+            <option value="3">7th-8th</option>
+            <option value="4">9th</option>
+            <option value="5">10th</option>
+            <option value="6">11th</option>
+            <option value="7">12th</option>
+            <option value="8">HS-grad</option>
+            <option value="9">Some-college</option>
+            <option value="10">Assoc-acdm</option>
+            <option value="11">Assoc-voc</option>
+            <option value="12">Bachelors</option>
+            <option value="13">Masters</option>
+            <option value="14">Doctorate</option>
+        </select>
+
+        <label>Education Num:</label>
+        <input type="number" name="education_num" required>
+
+        <label>Workclass:</label>
+        <select name="workclass" required>
+            <option value="0">Private</option>
+            <option value="1">Self-emp-not-inc</option>
+            <option value="2">Self-emp-inc</option>
+            <option value="3">Federal-gov</option>
+            <option value="4">Local-gov</option>
+            <option value="5">State-gov</option>
+            <option value="6">Without-pay</option>
+            <option value="7">Never-worked</option>
+        </select>
+
+        <label>Marital Status:</label>
+        <select name="marital_status" required>
+            <option value="0">Married-civ-spouse</option>
+            <option value="1">Divorced</option>
+            <option value="2">Never-married</option>
+            <option value="3">Separated</option>
+            <option value="4">Widowed</option>
+            <option value="5">Married-spouse-absent</option>
+        </select>
+
+        <label>Occupation:</label>
+        <select name="occupation" required>
+            <option value="0">Tech-support</option>
+            <option value="1">Craft-repair</option>
+            <option value="2">Other-service</option>
+            <option value="3">Sales</option>
+            <option value="4">Exec-managerial</option>
+            <option value="5">Prof-specialty</option>
+            <option value="6">Handlers-cleaners</option>
+            <option value="7">Machine-op-inspct</option>
+            <option value="8">Adm-clerical</option>
+            <option value="9">Farming-fishing</option>
+            <option value="10">Transport-moving</option>
+            <option value="11">Priv-house-serv</option>
+            <option value="12">Protective-serv</option>
+            <option value="13">Armed-Forces</option>
+        </select>
+
+        <label>Relationship:</label>
+        <select name="relationship" required>
+            <option value="0">Wife</option>
+            <option value="1">Own-child</option>
+            <option value="2">Husband</option>
+            <option value="3">Not-in-family</option>
+            <option value="4">Other-relative</option>
+            <option value="5">Unmarried</option>
+        </select>
+
+        <label>Race:</label>
+        <select name="race" required>
+            <option value="0">White</option>
+            <option value="1">Black</option>
+            <option value="2">Asian-Pac-Islander</option>
+            <option value="3">Amer-Indian-Eskimo</option>
+            <option value="4">Other</option>
+        </select>
+
+        <label>Sex:</label>
+        <select name="sex" required>
+            <option value="0">Female</option>
+            <option value="1">Male</option>
+        </select>
+
+        <label>Native Country:</label>
+        <select name="native_country" required>
+            <option value="0">United-States</option>
+            <option value="1">Mexico</option>
+            <option value="2">Philippines</option>
+            <option value="3">Germany</option>
+            <option value="4">Canada</option>
+            <option value="5">India</option>
+            <option value="6">Other</option>
+        </select>
+
+        <label>Capital Gain:</label>
+        <input type="number" name="capital_gain" required>
+
+        <label>Capital Loss:</label>
+        <input type="number" name="capital_loss" required>
+
+        <label>Hours per Week:</label>
+        <input type="number" name="hours_per_week" required>
+
+        <input type="submit" value="Predict Income" class="full-width">
+    </form>
+
+    <div class="result">
+        {{ prediction_text }}
+    </div>
+
+</body>
+</html>
