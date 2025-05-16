@@ -167,9 +167,6 @@
         <label>Hours per Week:</label>
         <input type="number" name="hours_per_week" required>
 
-        <label>FNLWGT:</label>
-        <input type="number" name="fnlwgt" required>
-
         <input type="submit" value="Predict Income" class="full-width">
     </form>
 

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Adult Income Prediction</title>
+    <title>Adult Income Predictor</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,16 +26,20 @@
             margin-top: 0.5rem;
         }
 
-        input, select {
+        input[type="number"],
+        select {
             width: 100%;
             padding: 0.5rem;
         }
 
-        .full-width {
-            grid-column: span 2;
+        .short-input {
+            width: 5rem;
+            padding: 0.4rem;
+            text-align: right;
         }
 
-        input[type="submit"] {
+        input[type="submit"],
+        input[type="reset"] {
             margin-top: 2rem;
             padding: 0.75rem;
             background-color: #4CAF50;
@@ -43,6 +47,14 @@
             border: none;
             font-size: 1rem;
             font-weight: bold;
+        }
+
+        input[type="reset"] {
+            background-color: #f44336;
+        }
+
+        .full-width {
+            grid-column: span 2;
         }
 
         .result {
@@ -54,13 +66,23 @@
 </head>
 <body>
 
-    <h1>Predict Income Level</h1>
+    <h1>Predict Your Income Level</h1>
 
-    <form action="/predict" method="post">
-        <label>Age:</label>
-        <input type="number" name="age" required>
+    <form action="/predict" method="post" id="incomeForm">
 
-        <label>Education Level:</label>
+        <label title="Your age in years">Age:</label>
+        <input type="number" name="age" required class="short-input">
+
+        <label title="Capital gain from investments">Capital Gain:</label>
+        <input type="number" name="capital_gain" required class="short-input">
+
+        <label title="Reported financial loss">Capital Loss:</label>
+        <input type="number" name="capital_loss" required class="short-input">
+
+        <label title="Average hours worked per week">Hours per Week:</label>
+        <input type="number" name="hours_per_week" required class="short-input">
+
+        <label title="Highest level of education completed">Education Level:</label>
         <select name="education" required>
             <option value="0">Preschool</option>
             <option value="1">1st-4th</option>
@@ -79,10 +101,7 @@
             <option value="14">Doctorate</option>
         </select>
 
-        <label>Education Num:</label>
-        <input type="number" name="education_num" required>
-
-        <label>Workclass:</label>
+        <label title="Type of employment">Workclass:</label>
         <select name="workclass" required>
             <option value="0">Private</option>
             <option value="1">Self-emp-not-inc</option>
@@ -94,7 +113,7 @@
             <option value="7">Never-worked</option>
         </select>
 
-        <label>Marital Status:</label>
+        <label title="Marital status">Marital Status:</label>
         <select name="marital_status" required>
             <option value="0">Married-civ-spouse</option>
             <option value="1">Divorced</option>
@@ -104,7 +123,7 @@
             <option value="5">Married-spouse-absent</option>
         </select>
 
-        <label>Occupation:</label>
+        <label title="Primary job role">Occupation:</label>
         <select name="occupation" required>
             <option value="0">Tech-support</option>
             <option value="1">Craft-repair</option>
@@ -122,7 +141,7 @@
             <option value="13">Armed-Forces</option>
         </select>
 
-        <label>Relationship:</label>
+        <label title="Family relationship to head of household">Relationship:</label>
         <select name="relationship" required>
             <option value="0">Wife</option>
             <option value="1">Own-child</option>
@@ -132,7 +151,7 @@
             <option value="5">Unmarried</option>
         </select>
 
-        <label>Race:</label>
+        <label title="Race (self-identified)">Race:</label>
         <select name="race" required>
             <option value="0">White</option>
             <option value="1">Black</option>
@@ -141,13 +160,13 @@
             <option value="4">Other</option>
         </select>
 
-        <label>Sex:</label>
+        <label title="Gender (0 = Female, 1 = Male)">Sex:</label>
         <select name="sex" required>
             <option value="0">Female</option>
             <option value="1">Male</option>
         </select>
 
-        <label>Native Country:</label>
+        <label title="Country of origin">Native Country:</label>
         <select name="native_country" required>
             <option value="0">United-States</option>
             <option value="1">Mexico</option>
@@ -158,16 +177,8 @@
             <option value="6">Other</option>
         </select>
 
-        <label>Capital Gain:</label>
-        <input type="number" name="capital_gain" required>
-
-        <label>Capital Loss:</label>
-        <input type="number" name="capital_loss" required>
-
-        <label>Hours per Week:</label>
-        <input type="number" name="hours_per_week" required>
-
         <input type="submit" value="Predict Income" class="full-width">
+        <input type="reset" value="Clear Form" class="full-width">
     </form>
 
     <div class="result">
