@@ -2,188 +2,179 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Adult Income Predictor</title>
+    <title>Income Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 2rem auto;
-            max-width: 700px;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
         }
-
-        h1 {
+        .form-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            width: 500px;
+        }
+        h2 {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 20px;
         }
-
-        form {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+        form label {
+            display: block;
+            margin: 10px 0 5px;
         }
-
-        label {
-            font-weight: bold;
-            margin-top: 0.5rem;
-        }
-
-        input[type="number"],
-        select {
+        input[type="number"], select {
             width: 100%;
-            padding: 0.5rem;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
-
-        .short-input {
-            width: 5rem;
-            padding: 0.4rem;
-            text-align: right;
-        }
-
-        input[type="submit"],
-        input[type="reset"] {
-            margin-top: 2rem;
-            padding: 0.75rem;
-            background-color: #4CAF50;
-            color: white;
+        button {
+            padding: 10px 20px;
+            margin-right: 10px;
             border: none;
-            font-size: 1rem;
-            font-weight: bold;
+            border-radius: 4px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
         }
-
-        input[type="reset"] {
-            background-color: #f44336;
+        button[type="reset"] {
+            background-color: #6c757d;
         }
-
-        .full-width {
-            grid-column: span 2;
-        }
-
-        .result {
+        .result-box {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
             text-align: center;
-            margin-top: 2rem;
-            font-size: 1.5rem;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
+<div class="form-container">
+    <h2>Predict Income Level</h2>
+    <form action="/predict" method="post">
+        <label for="age">Age:</label>
+        <input type="number" name="age" id="age" min="18" max="100" required>
 
-    <h1>Predict Your Income Level</h1>
-
-    <form action="/predict" method="post" id="incomeForm">
-
-        <label title="Your age in years">Age:</label>
-        <input type="number" name="age" required class="short-input">
-
-        <label title="Capital gain from investments">Capital Gain:</label>
-        <input type="number" name="capital_gain" required class="short-input">
-
-        <label title="Reported financial loss">Capital Loss:</label>
-        <input type="number" name="capital_loss" required class="short-input">
-
-        <label title="Average hours worked per week">Hours per Week:</label>
-        <input type="number" name="hours_per_week" required class="short-input">
-
-        <label title="Highest level of education completed">Education Level:</label>
-        <select name="education" required>
-            <option value="0">Preschool</option>
-            <option value="1">1st-4th</option>
-            <option value="2">5th-6th</option>
-            <option value="3">7th-8th</option>
-            <option value="4">9th</option>
-            <option value="5">10th</option>
-            <option value="6">11th</option>
-            <option value="7">12th</option>
-            <option value="8">HS-grad</option>
-            <option value="9">Some-college</option>
-            <option value="10">Assoc-acdm</option>
-            <option value="11">Assoc-voc</option>
-            <option value="12">Bachelors</option>
-            <option value="13">Masters</option>
-            <option value="14">Doctorate</option>
+        <label for="workclass" title="Type of employment">Workclass:</label>
+        <select name="workclass" id="workclass" required>
+            <option value="" disabled selected>Select Workclass</option>
+            <option value="Private">Private</option>
+            <option value="Self-emp-not-inc">Self-emp-not-inc</option>
+            <option value="Self-emp-inc">Self-emp-inc</option>
+            <option value="Federal-gov">Federal-gov</option>
+            <option value="Local-gov">Local-gov</option>
+            <option value="State-gov">State-gov</option>
+            <option value="Without-pay">Without-pay</option>
+            <option value="Never-worked">Never-worked</option>
         </select>
 
-        <label title="Type of employment">Workclass:</label>
-        <select name="workclass" required>
-            <option value="0">Private</option>
-            <option value="1">Self-emp-not-inc</option>
-            <option value="2">Self-emp-inc</option>
-            <option value="3">Federal-gov</option>
-            <option value="4">Local-gov</option>
-            <option value="5">State-gov</option>
-            <option value="6">Without-pay</option>
-            <option value="7">Never-worked</option>
+        <label for="education">Education:</label>
+        <select name="education" id="education" required>
+            <option value="" disabled selected>Select Education</option>
+            <option value="Bachelors">Bachelors</option>
+            <option value="HS-grad">HS-grad</option>
+            <option value="11th">11th</option>
+            <option value="Masters">Masters</option>
+            <option value="9th">9th</option>
+            <option value="Some-college">Some-college</option>
+            <option value="Assoc-acdm">Assoc-acdm</option>
+            <option value="Assoc-voc">Assoc-voc</option>
+            <option value="7th-8th">7th-8th</option>
+            <option value="Doctorate">Doctorate</option>
+            <option value="Prof-school">Prof-school</option>
         </select>
 
-        <label title="Marital status">Marital Status:</label>
-        <select name="marital_status" required>
-            <option value="0">Married-civ-spouse</option>
-            <option value="1">Divorced</option>
-            <option value="2">Never-married</option>
-            <option value="3">Separated</option>
-            <option value="4">Widowed</option>
-            <option value="5">Married-spouse-absent</option>
+        <label for="marital_status">Marital Status:</label>
+        <select name="marital_status" id="marital_status" required>
+            <option value="" disabled selected>Select Marital Status</option>
+            <option value="Married-civ-spouse">Married-civ-spouse</option>
+            <option value="Divorced">Divorced</option>
+            <option value="Never-married">Never-married</option>
+            <option value="Separated">Separated</option>
+            <option value="Widowed">Widowed</option>
+            <option value="Married-spouse-absent">Married-spouse-absent</option>
         </select>
 
-        <label title="Primary job role">Occupation:</label>
-        <select name="occupation" required>
-            <option value="0">Tech-support</option>
-            <option value="1">Craft-repair</option>
-            <option value="2">Other-service</option>
-            <option value="3">Sales</option>
-            <option value="4">Exec-managerial</option>
-            <option value="5">Prof-specialty</option>
-            <option value="6">Handlers-cleaners</option>
-            <option value="7">Machine-op-inspct</option>
-            <option value="8">Adm-clerical</option>
-            <option value="9">Farming-fishing</option>
-            <option value="10">Transport-moving</option>
-            <option value="11">Priv-house-serv</option>
-            <option value="12">Protective-serv</option>
-            <option value="13">Armed-Forces</option>
+        <label for="occupation">Occupation:</label>
+        <select name="occupation" id="occupation" required>
+            <option value="" disabled selected>Select Occupation</option>
+            <option value="Tech-support">Tech-support</option>
+            <option value="Craft-repair">Craft-repair</option>
+            <option value="Other-service">Other-service</option>
+            <option value="Sales">Sales</option>
+            <option value="Exec-managerial">Exec-managerial</option>
+            <option value="Prof-specialty">Prof-specialty</option>
+            <option value="Handlers-cleaners">Handlers-cleaners</option>
+            <option value="Machine-op-inspct">Machine-op-inspct</option>
+            <option value="Adm-clerical">Adm-clerical</option>
         </select>
 
-        <label title="Family relationship to head of household">Relationship:</label>
-        <select name="relationship" required>
-            <option value="0">Wife</option>
-            <option value="1">Own-child</option>
-            <option value="2">Husband</option>
-            <option value="3">Not-in-family</option>
-            <option value="4">Other-relative</option>
-            <option value="5">Unmarried</option>
+        <label for="relationship">Relationship:</label>
+        <select name="relationship" id="relationship" required>
+            <option value="" disabled selected>Select Relationship</option>
+            <option value="Wife">Wife</option>
+            <option value="Own-child">Own-child</option>
+            <option value="Husband">Husband</option>
+            <option value="Not-in-family">Not-in-family</option>
+            <option value="Other-relative">Other-relative</option>
+            <option value="Unmarried">Unmarried</option>
         </select>
 
-        <label title="Race (self-identified)">Race:</label>
-        <select name="race" required>
-            <option value="0">White</option>
-            <option value="1">Black</option>
-            <option value="2">Asian-Pac-Islander</option>
-            <option value="3">Amer-Indian-Eskimo</option>
-            <option value="4">Other</option>
+        <label for="race">Race:</label>
+        <select name="race" id="race" required>
+            <option value="" disabled selected>Select Race</option>
+            <option value="White">White</option>
+            <option value="Black">Black</option>
+            <option value="Asian-Pac-Islander">Asian-Pac-Islander</option>
+            <option value="Amer-Indian-Eskimo">Amer-Indian-Eskimo</option>
+            <option value="Other">Other</option>
         </select>
 
-        <label title="Gender (0 = Female, 1 = Male)">Sex:</label>
-        <select name="sex" required>
-            <option value="0">Female</option>
-            <option value="1">Male</option>
+        <label for="sex">Sex:</label>
+        <select name="sex" id="sex" required>
+            <option value="" disabled selected>Select Sex</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
         </select>
 
-        <label title="Country of origin">Native Country:</label>
-        <select name="native_country" required>
-            <option value="0">United-States</option>
-            <option value="1">Mexico</option>
-            <option value="2">Philippines</option>
-            <option value="3">Germany</option>
-            <option value="4">Canada</option>
-            <option value="5">India</option>
-            <option value="6">Other</option>
+        <label for="capital_gain">Capital Gain:</label>
+        <input type="number" name="capital_gain" id="capital_gain" min="0" required>
+
+        <label for="capital_loss">Capital Loss:</label>
+        <input type="number" name="capital_loss" id="capital_loss" min="0" required>
+
+        <label for="hours_per_week">Hours per Week:</label>
+        <input type="number" name="hours_per_week" id="hours_per_week" min="1" max="100" required>
+
+        <label for="native_country">Native Country:</label>
+        <select name="native_country" id="native_country" required>
+            <option value="" disabled selected>Select Country</option>
+            <option value="United-States">United-States</option>
+            <option value="Cambodia">Cambodia</option>
+            <option value="England">England</option>
+            <option value="Puerto-Rico">Puerto-Rico</option>
+            <option value="Canada">Canada</option>
+            <option value="Germany">Germany</option>
+            <option value="Outlying-US(Guam-USVI-etc)">Outlying-US(Guam-USVI-etc)</option>
         </select>
 
-        <input type="submit" value="Predict Income" class="full-width">
-        <input type="reset" value="Clear Form" class="full-width">
+        <div style="text-align: center;">
+            <button type="submit">Predict</button>
+            <button type="reset">Clear</button>
+        </div>
     </form>
 
-    <div class="result">
-        {{ prediction_text }}
-    </div>
-
+    {% if prediction_text %}
+        <div class="result-box">{{ prediction_text }}</div>
+    {% endif %}
+</div>
 </body>
 </html>

@@ -7,63 +7,82 @@
 # It exposes a simple web interface for input and displays the prediction.
 # =============================================================================
 
-from flask import Flask, request, render_template
-import numpy as np
-import joblib
 import os
+import joblib
+import pandas as pd
+from flask import Flask, request, render_template
+
+# Set base directory to ensure consistent file paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # --- Create Flask App Instance ---
 app = Flask(__name__)
 
-# --- Load Trained Model and Scaler ---
-# These were saved using joblib from the notebook
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "../model/model.pkl")
-SCALER_PATH = os.path.join(os.path.dirname(__file__), "../model/preprocess.pkl")
+# Load the trained machine learning model, scaler, and label encoders
+MODEL_PATH = os.path.join(BASE_DIR, "../model/model.pkl")
+SCALER_PATH = os.path.join(BASE_DIR, "../model/preprocess.pkl")
+ENCODERS_PATH = os.path.join(BASE_DIR, "../model/label_encoders.pkl")
 
 model = joblib.load(MODEL_PATH)
 scaler = joblib.load(SCALER_PATH)
+label_encoders = joblib.load(ENCODERS_PATH)
 
-# --- Define Homepage Route ---
+# Define the route for the home page
 @app.route('/')
 def home():
-    return render_template('index.html')  # Simple HTML form to collect user input
+    return render_template('index.html') # Simple HTML form to collect user input
 
-# --- Define Prediction Route (POST) ---
+# Define the route for prediction handling
 @app.route('/predict', methods=['POST'])
 def predict():
-    # Collect data from HTML form
     try:
-        # Extract values from form in correct order
-        input_features = [
-            float(request.form['age']),
-            float(request.form['education_num']),
-            float(request.form['capital_gain']),
-            float(request.form['capital_loss']),
-            float(request.form['hours_per_week']),
-            int(request.form['workclass']),
-            int(request.form['marital_status']),
-            int(request.form['occupation']),
-            int(request.form['relationship']),
-            int(request.form['race']),
-            int(request.form['sex']),
-            int(request.form['native_country']),
-            int(request.form['education']),
-        ]
+        # Debug: Show what form fields are coming in
+        print("Form Data:", request.form)
 
-        # Convert input to numpy array and scale it
-        final_input = scaler.transform([input_features])
+        # Get all form data safely
+        age = int(request.form.get('age', 0))
+        workclass = request.form.get('workclass', 'Private')
+        education = request.form.get('education', 'HS-grad')
+        marital_status = request.form.get('marital_status', 'Never-married')
+        occupation = request.form.get('occupation', 'Sales')
+        relationship = request.form.get('relationship', 'Not-in-family')
+        race = request.form.get('race', 'White')
+        sex = request.form.get('sex', 'Male')
+        capital_gain = int(request.form.get('capital_gain', 0))
+        capital_loss = int(request.form.get('capital_loss', 0))
+        hours_per_week = int(request.form.get('hours_per_week', 40))
+        native_country = request.form.get('native_country', 'United-States')
+
+        # Organize inputs into a DataFrame
+        input_data = pd.DataFrame([[
+            age, workclass, education, marital_status, occupation,
+            relationship, race, sex, capital_gain, capital_loss,
+            hours_per_week, native_country
+        ]], columns=[
+            'age', 'workclass', 'education', 'marital-status', 'occupation',
+            'relationship', 'race', 'sex', 'capital-gain', 'capital-loss',
+            'hours-per-week', 'native-country'
+        ])
+
+        # Apply label encoding for categorical columns
+        for column in input_data.columns:
+            if column in label_encoders:
+                le = label_encoders[column]
+                input_data[column] = le.transform(input_data[column])
+
+        # Apply scaling
+        input_scaled = scaler.transform(input_data)
 
         # Make prediction
-        prediction = model.predict(final_input)[0]
+        prediction = model.predict(input_scaled)
+        result = '>50K' if prediction[0] == 1 else '<=50K'
 
-        # Translate prediction to readable output
-        result = ">50K" if prediction == 1 else "<=50K"
-
-        return render_template('index.html', prediction_text=f"Predicted Income: {result}")
+        return render_template('index.html', prediction_text=f'Predicted Income: {result}')
 
     except Exception as e:
-        return render_template('index.html', prediction_text=f"Error: {str(e)}")
+        print("Prediction error:", e)
+        return render_template('index.html', prediction_text=f'Error: {e}')
 
-# --- Run the Flask App ---
+# Run the Flask application
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
