@@ -2,105 +2,110 @@
 
 ## 1. Problem Definition and Dataset
 
-The goal of this project is to build a machine learning model to predict whether an individual earns more than \$50,000 annually, based on demographic and work-related features. This is a binary classification problem, distinguishing between income levels `<=50K` and `>50K`.
+This project aims to predict whether an individual earns more than \$50,000 per year based on U.S. Census data. This is framed as a binary classification task where the output label is either `<=50K` or `>50K`.
 
-**Dataset:**
-The [Adult Income Dataset](https://archive.ics.uci.edu/ml/datasets/adult) from the UCI Machine Learning Repository was selected due to its structured format, reliable source, and relevance for socio-economic prediction tasks.
+### Why Machine Learning?
 
-**Features Used:**
+Income prediction involves numerous interrelated demographic and occupational features. A machine learning model can learn complex, nonlinear relationships in this multidimensional space, enabling accurate predictions and useful generalizations for unseen data.
 
-* `age` (numerical)
-* `education` (categorical, label-encoded)
-* `workclass` (categorical)
-* `occupation` (categorical)
-* `hours-per-week` (numerical)
-* `marital-status`, `sex`, `race`, `native-country` and others (categorical)
+### Dataset
 
-**Target:**
+* **Source**: [UCI Machine Learning Repository - Adult Income Dataset](https://archive.ics.uci.edu/ml/datasets/adult)
+* **Features Used**:
 
-* `income`: Binary classification — `>50K` or `<=50K`
-
-**ML Justification:**
-Machine learning enables us to model non-linear relationships between features and income outcomes, and scale predictions for large populations.
+  * `age`
+  * `workclass`
+  * `education`
+  * `education_num`
+  * `marital_status`
+  * `occupation`
+  * `relationship`
+  * `race`
+  * `sex`
+  * `capital_gain`
+  * `capital_loss`
+  * `hours_per_week`
+  * `native_country`
+* **Target**: `income` (binary: `<=50K` or `>50K`)
 
 ---
 
-## 2. Data Exploration, Cleaning & Feature Engineering
+## 2. Data Exploration, Cleaning, and Feature Engineering
 
-Conducted in a Jupyter Notebook:
+Exploratory Data Analysis (EDA) was conducted using Pandas and Seaborn to examine distributions, detect anomalies, and understand feature relationships.
 
-* **Data Cleaning:**
+### Key Steps:
 
-  * Removed rows with missing or ambiguous values (`?`)
-  * Dropped unnecessary columns like `fnlwgt`
+* Missing values marked with '?' were identified and removed.
+* Categorical features were encoded using `OneHotEncoder`.
+* Continuous variables were scaled using `StandardScaler`.
+* The `fnlwgt` feature was dropped due to lack of predictive power.
 
-* **Feature Engineering:**
+### Notebooks
 
-  * Label encoding for binary categories
-  * One-hot encoding for multi-category features
-  * Scaled numerical features using `StandardScaler`
-
-* **Exploratory Data Analysis:**
-
-  * Visualized income distribution, correlations, and categorical impacts using seaborn/matplotlib
-
-Artifacts:
-
-* `eda-cleaning.ipynb`
-* Preprocessed model objects: `model.pkl`, `preprocess.pkl`
+* All data preprocessing steps were documented and executed in Jupyter Notebook.
+* Output: Cleaned dataset, `preprocess.pkl` (scaler and encoder pipeline), and EDA visualizations.
 
 ---
 
 ## 3. Model Training and Evaluation
 
-* **Model Chosen:** Logistic Regression
-* **Training/Test Split:** 80/20
-* **Cross-Validation:** Stratified K-Fold
-* **Metrics:** Accuracy, Precision, Recall, F1 Score
+The clean dataset was split as follows:
 
-Artifacts:
+* Training Set: 70%
+* Validation Set: 15%
+* Test Set: 15%
 
-* Notebook: `train-model.ipynb`
-* Serialized files: `model.pkl`, `preprocess.pkl`
+### Models Considered:
+
+* Logistic Regression
+* Decision Tree
+* Random Forest
+
+### Chosen Model:
+
+* Logistic Regression (for interpretability and strong baseline performance)
+
+### Evaluation Metrics:
+
+* Accuracy
+* Precision
+* Recall
+* F1 Score
+
+The final model and pipeline were serialized using `joblib` into the `model/` directory.
 
 ---
 
-### 4. Local Deployment Using Flask
+## 4. Local Deployment Using Flask
 
-To demonstrate local model deployment, a lightweight web app was built using **Flask**. This application provides a simple, form-based UI to input demographic and employment-related attributes, then returns a prediction on whether the individual earns more or less than $50,000 per year.
+To serve predictions locally, a Flask web server was created.
 
-#### File Structure (Relevant to Local Deployment)
-- `app.py` — Flask application entry point  
-- `templates/` — contains the HTML form (e.g., `form.html`)  
-- `model/`
-  - `model.pkl` — trained classification model  
-  - `preprocess.pkl` — preprocessing pipeline used on input data  
+### Core Files
 
-####️ How to Run Locally
-1. **Install dependencies** (ideally in a virtual environment):
-   ```bash
-   pip install -r requirements.txt
-   ```
+* `app.py`: Flask application
+* `templates/index.html`: Simple HTML form to collect feature inputs
+* `model/`: Directory containing serialized `model.pkl` and `preprocess.pkl`
 
-2. **Run the Flask app**:
-   ```bash
-   python app.py
-   ```
+### Running Locally
 
-3. **Open a browser to**:
-   ```
-   http://127.0.0.1:5000/
-   ```
+```bash
+python app.py
+```
 
-4. **Use the web interface** to submit data and receive live predictions.
+### Accessing the Application
 
-#### How It Works
-- The `app.py` file loads the pre-trained model and preprocessing pipeline.
-- User inputs from the form are processed and transformed before being passed to the model.
-- The model predicts whether the individual earns `>50K` or `<=50K`, and the result is displayed in the browser.
+Open your browser and navigate to:
 
-#### Requirements Met
-- This implementation fulfills the requirement to deploy the trained machine learning model on a **local machine using Flask**.
+```
+http://localhost:5000
+```
+
+Use the provided form to input features and get a prediction.
+
+### Example Prediction Route
+
+An API route `/predict` accepts POST requests with JSON input and returns the predicted class. This enables testing via Postman, curl, or other programmatic clients.
 
 ---
 
@@ -117,32 +122,31 @@ The following files were created to support Dockerization:
 * `app.py`: Flask application used to serve predictions.
 * `model/`: Directory containing serialized model and preprocessing pipeline (`model.pkl`, `preprocess.pkl`).
 
-**Dockerfile Example:**
+**Dockerfile:**
 
 ```Dockerfile
-# 5. Containerization and DockerHub Push
+# Use an official Python runtime as the base image
+FROM python:3.10-slim
 
-To make the model portable and reproducible, it was containerized using Docker. This allows the model and all its dependencies to be packaged together, ensuring consistent behavior across environments.
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-### Docker Setup
+# Set working directory
+WORKDIR /app
 
-The following files were created to support Dockerization:
+# Copy the contents of your project into the container
+COPY . /app
 
-* `Dockerfile`: Defines the container image, its dependencies, and the command to run the app.
-* `requirements.txt`: Contains Python package dependencies.
-* `app.py`: Flask application used to serve predictions.
-* `model/`: Directory containing serialized model and preprocessing pipeline (`model.pkl`, `preprocess.pkl`).
+# Install dependencies
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
 
-**Dockerfile Example:**
+# Expose the port Flask runs on
+EXPOSE 5000
 
-```Dockerfile
-   FROM python:3.10-slim
-   WORKDIR /app
-   COPY requirements.txt ./
-   RUN pip install --no-cache-dir -r requirements.txt
-   COPY . .
-   EXPOSE 5000
-   CMD ["python", "app.py"]
+# Run the application
+CMD ["python", "app/app.py"]
 ```
 
 ### Building and Testing Locally
@@ -150,129 +154,166 @@ The following files were created to support Dockerization:
 To build and run the Docker container locally:
 
 ```bash
-   docker build -t income-predictor .
-   docker run -p 5000:5000 income-predictor
+docker build -t income-predictor .
+docker run -p 5000:5000 income-predictor
 ```
 
-You can then test it using `curl` or a tool like Postman to send JSON to `http://localhost:5000/predict`.
+You can then test it using `curl`, Postman, or the included HTML form by visiting `http://localhost:5000`.
 
 ### Publishing to DockerHub
 
 Once tested locally, the image was pushed to DockerHub for broader accessibility:
 
 ```bash
-   docker tag income-predictor your-dockerhub-username/income-predictor
-   docker push your-dockerhub-username/income-predictor
+docker tag income-predictor your-dockerhub-username/income-predictor
+
+docker push your-dockerhub-username/income-predictor
 ```
 
 The container image is now available for use in CI/CD pipelines and cloud platforms such as Heroku or Kubernetes.
-This step ensures that anyone, anywhere can pull the image and run it, making the model cloud-native and easily deployable.
-```
 
-### Building and Testing Locally
-
-To build and run the Docker container locally:
-
-```bash
-   docker build -t income-predictor .
-   docker run -p 5000:5000 income-predictor
-```
-
-You can then test it using `curl` or a tool like Postman to send JSON to `http://localhost:5000/predict`.
-
-### Publishing to DockerHub
-
-Once tested locally, the image was pushed to DockerHub for broader accessibility:
-
-```bash
-   docker tag income-predictor your-dockerhub-username/income-predictor
-   docker push your-dockerhub-username/income-predictor
-```
-
-The container image is now available for use in CI/CD pipelines and cloud platforms such as Heroku or Kubernetes.
 This step ensures that anyone, anywhere can pull the image and run it, making the model cloud-native and easily deployable.
 
+---
 
 ## 6. CI/CD Pipeline with Heroku Deployment
 
-* **GitHub Actions** workflow automates:
+To automate deployment, a CI/CD pipeline was implemented using GitHub and Heroku. This ensures that updates to the codebase trigger a new deployment without manual intervention.
 
-  * Build
-  * Test
-  * Deploy to Heroku on `main` push
+### Project Structure for CI/CD
 
-* **Heroku Setup:**
+* `app.py`: Flask app entry point
+* `requirements.txt`: Python dependencies
+* `Procfile`: Tells Heroku how to run the app
+* `.github/workflows/deploy.yml`: GitHub Actions workflow for CI/CD
 
-  * `Procfile` defined to run gunicorn
-  * `runtime.txt`, `requirements.txt` included
-  * Deployment verified via Heroku Logs and `/ping` health check
+**Procfile Example:**
 
-* Test deployment:
+```
+web: python app.py
+```
 
-    https://adult-income-prediction-3012ecce80a6.herokuapp.com/  
+### CI/CD YAML:
 
-* GitHub Actions file: `.github/workflows/deploy.yml`
+```yaml
+ame: Build and Push Docker Image
 
-Artifacts:
+on:
+  push:
+    branches: [ "main" ]
 
-* `.github/workflows/deploy.yml`
-* `Procfile`
-* `runtime.txt`
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: rdarnell55/income-predictor:latest
+```
+
+### Testing the Live App
+
+Once deployed, the application can be tested using the live Heroku URL:
+
+[https://adult-income-prediction-3012ecce80a6.herokuapp.com](https://adult-income-prediction-3012ecce80a6.herokuapp.com)
+
+A simple HTML form served at the root route allows manual input testing. For API-style testing, tools like Postman can be used to send JSON requests to `/predict`.
+
+This CI/CD integration enables rapid iteration, consistent deployment, and reliable delivery of updates with minimal manual steps.
 
 ---
 
 ## 7. Kubernetes Deployment
 
-* **Configuration:** Deployed using Kubernetes cluster with YAML definition.
+To demonstrate orchestration and scalability, the application was also deployed using Kubernetes. This allows for efficient management of containerized workloads across clusters.
 
-* **Key Resources:**
+### Kubernetes Files Included
 
-  * `deployment.yaml`: Defines pod, replica set, container image
-  * `service.yaml`: Exposes deployment via ClusterIP or LoadBalancer
+* `k8s-deployment.yaml`: Defines the deployment, specifying the number of replicas, container image, ports, and labels.
+* `k8s-service.yaml`: Exposes the application using a `NodePort` service for external access.
 
-* Commands:
+**k8s-deployment.yaml:**
 
-  ```bash
-  kubectl apply -f deployment.yaml
-  kubectl apply -f service.yaml
-  kubectl get pods
-  kubectl port-forward service/income-predictor 12345:80
-  ```
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: income-predictor-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: income-predictor
+  template:
+    metadata:
+      labels:
+        app: income-predictor
+    spec:
+      containers:
+        - name: income-predictor
+          image: rdarnell55/income-predictor:latest
+          ports:
+            - containerPort: 5000
+```
 
-Artifacts:
+**k8s-service.yaml Example:**
 
-* `deployment.yaml`
-* `service.yaml`
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: income-predictor-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: income-predictor
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+```
+
+### Deploying to Kubernetes Cluster
+
+```bash
+kubectl apply -f k8s-deployment.yaml
+kubectl apply -f k8s-service.yaml
+```
+
+Access the application at `http://<your-node-ip>:30036`
 
 ---
 
-## 8. (Optional Extra Credit) AWS SageMaker Deployment
+## Summary
 
-⚠️ **Not submitted as part of the main assignment.**
-Efforts were made to deploy the containerized model to AWS SageMaker using the ECR-hosted image. The process involved:
+This project demonstrates a full end-to-end machine learning workflow:
 
-* Creating an ECR repository
-* Using AWS CodeBuild to push the Docker image
-* Deploying with the `sagemaker.Model` class
+1. Data preprocessing and feature engineering using Python and Pandas
+2. Model training, evaluation, and serialization using scikit-learn
+3. Local deployment using Flask
+4. Containerization using Docker and hosting on DockerHub
+5. CI/CD automation using GitHub Actions with deployment to Heroku
+6. Kubernetes orchestration using YAML configuration files
 
-SageMaker deployment was not finalized due to compatibility issues and time constraints.
+Each step was designed to highlight real-world machine learning engineering practices with scalable, production-ready tools.
 
----
-
-## ✅ Summary Checklist
-
-| Task                                               | Status      |
-| -------------------------------------------------- | ----------- |
-| Define problem and dataset                         | ✅ Completed |
-| Data cleaning and feature engineering              | ✅ Completed |
-| Model training and evaluation                      | ✅ Completed |
-| Local Flask deployment                             | ✅ Completed |
-| Docker container + DockerHub                       | ✅ Completed |
-| CI/CD pipeline and Heroku deployment               | ✅ Completed |
-| Kubernetes deployment                              | ✅ Completed |
-| AWS SageMaker deployment (extra credit - optional) | ⏳ Attempted |
-
----
+The project repository includes all source code, models, container and orchestration configurations, as well as documentation for replication and future extension.
 
 ## 🎮 Final Notes
 
