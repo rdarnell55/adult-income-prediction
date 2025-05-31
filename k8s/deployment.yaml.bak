@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: income-predictor-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: income-predictor
+  template:
+    metadata:
+      labels:
+        app: income-predictor
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: income-predictor
+          image: rdarnell55/income-predictor:latest
+          ports:
+            - containerPort: 5000
