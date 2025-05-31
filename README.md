@@ -65,49 +65,133 @@ Artifacts:
 
 ---
 
-## 4. Local Deployment Using Flask
+### 4. Local Deployment Using Flask
 
-* Created a `serve.py` file to define a Flask app with endpoints:
+To demonstrate local model deployment, a lightweight web app was built using **Flask**. This application provides a simple, form-based UI to input demographic and employment-related attributes, then returns a prediction on whether the individual earns more or less than $50,000 per year.
 
-  * `/ping` – Health check
-  * `/invocations` – Model prediction (POST with JSON)
+#### File Structure (Relevant to Local Deployment)
+- `app.py` — Flask application entry point  
+- `templates/` — contains the HTML form (e.g., `form.html`)  
+- `model/`
+  - `model.pkl` — trained classification model  
+  - `preprocess.pkl` — preprocessing pipeline used on input data  
 
-* Ran locally via:
+####️ How to Run Locally
+1. **Install dependencies** (ideally in a virtual environment):
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-  ```bash
-  python serve.py
-  ```
+2. **Run the Flask app**:
+   ```bash
+   python app.py
+   ```
 
-* Test using `curl` or Postman:
+3. **Open a browser to**:
+   ```
+   http://127.0.0.1:5000/
+   ```
 
-  ```bash
-  curl -X POST -H "Content-Type: application/json" -d '{"features": [52, 287927, 13, 15000, 0, 60]}' http://localhost:8080/invocations
-  ```
+4. **Use the web interface** to submit data and receive live predictions.
+
+#### How It Works
+- The `app.py` file loads the pre-trained model and preprocessing pipeline.
+- User inputs from the form are processed and transformed before being passed to the model.
+- The model predicts whether the individual earns `>50K` or `<=50K`, and the result is displayed in the browser.
+
+#### Requirements Met
+- This implementation fulfills the requirement to deploy the trained machine learning model on a **local machine using Flask**.
 
 ---
 
 ## 5. Containerization and DockerHub Push
 
-* Dockerized the Flask app:
+To make the model portable and reproducible, it was containerized using Docker. This allows the model and all its dependencies to be packaged together, ensuring consistent behavior across environments.
 
-  * Used `python:3.10-slim` as base image
-  * Installed dependencies from `requirements.txt`
-  * Exposed port 8080 for inference
+### Docker Setup
 
-* Docker commands:
+The following files were created to support Dockerization:
 
-  ```bash
-  docker build -t income-predictor .
-  docker tag income-predictor <your-dockerhub-username>/income-predictor
-  docker push <your-dockerhub-username>/income-predictor
-  ```
+* `Dockerfile`: Defines the container image, its dependencies, and the command to run the app.
+* `requirements.txt`: Contains Python package dependencies.
+* `app.py`: Flask application used to serve predictions.
+* `model/`: Directory containing serialized model and preprocessing pipeline (`model.pkl`, `preprocess.pkl`).
 
-Artifacts:
+**Dockerfile Example:**
 
-* `Dockerfile`
-* `requirements.txt`
+```Dockerfile
+# 5. Containerization and DockerHub Push
 
----
+To make the model portable and reproducible, it was containerized using Docker. This allows the model and all its dependencies to be packaged together, ensuring consistent behavior across environments.
+
+### Docker Setup
+
+The following files were created to support Dockerization:
+
+* `Dockerfile`: Defines the container image, its dependencies, and the command to run the app.
+* `requirements.txt`: Contains Python package dependencies.
+* `app.py`: Flask application used to serve predictions.
+* `model/`: Directory containing serialized model and preprocessing pipeline (`model.pkl`, `preprocess.pkl`).
+
+**Dockerfile Example:**
+
+```Dockerfile
+   FROM python:3.10-slim
+   WORKDIR /app
+   COPY requirements.txt ./
+   RUN pip install --no-cache-dir -r requirements.txt
+   COPY . .
+   EXPOSE 5000
+   CMD ["python", "app.py"]
+```
+
+### Building and Testing Locally
+
+To build and run the Docker container locally:
+
+```bash
+   docker build -t income-predictor .
+   docker run -p 5000:5000 income-predictor
+```
+
+You can then test it using `curl` or a tool like Postman to send JSON to `http://localhost:5000/predict`.
+
+### Publishing to DockerHub
+
+Once tested locally, the image was pushed to DockerHub for broader accessibility:
+
+```bash
+   docker tag income-predictor your-dockerhub-username/income-predictor
+   docker push your-dockerhub-username/income-predictor
+```
+
+The container image is now available for use in CI/CD pipelines and cloud platforms such as Heroku or Kubernetes.
+This step ensures that anyone, anywhere can pull the image and run it, making the model cloud-native and easily deployable.
+```
+
+### Building and Testing Locally
+
+To build and run the Docker container locally:
+
+```bash
+   docker build -t income-predictor .
+   docker run -p 5000:5000 income-predictor
+```
+
+You can then test it using `curl` or a tool like Postman to send JSON to `http://localhost:5000/predict`.
+
+### Publishing to DockerHub
+
+Once tested locally, the image was pushed to DockerHub for broader accessibility:
+
+```bash
+   docker tag income-predictor your-dockerhub-username/income-predictor
+   docker push your-dockerhub-username/income-predictor
+```
+
+The container image is now available for use in CI/CD pipelines and cloud platforms such as Heroku or Kubernetes.
+This step ensures that anyone, anywhere can pull the image and run it, making the model cloud-native and easily deployable.
+
 
 ## 6. CI/CD Pipeline with Heroku Deployment
 
@@ -125,9 +209,7 @@ Artifacts:
 
 * Test deployment:
 
-  ```bash
-  curl https://<your-heroku-app>.herokuapp.com/ping
-  ```
+    https://adult-income-prediction-3012ecce80a6.herokuapp.com/  
 
 * GitHub Actions file: `.github/workflows/deploy.yml`
 
@@ -155,12 +237,6 @@ Artifacts:
   kubectl apply -f service.yaml
   kubectl get pods
   kubectl port-forward service/income-predictor 12345:80
-  ```
-
-* Test with:
-
-  ```bash
-  curl -X POST -H "Content-Type: application/json" -d '{"features": [52, 287927, 13, 15000, 0, 60]}' http://localhost:12345/invocations
   ```
 
 Artifacts:
