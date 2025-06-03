@@ -1,15 +1,16 @@
 # =============================================================================
-# Flask Web App to Deploy ML Model - Adult Income Prediction
+# Flask Web App to Deploy ML Model - Adult Income Prediction (via SageMaker)
 # -----------------------------------------------------------------------------
-# This Flask app loads a trained Logistic Regression model and scaler
-# to predict whether a user earns more than $50K/year based on input features.
-#
+# This Flask app collects user input, preprocesses it using saved scaler and
+# label encoders, and sends it to a deployed SageMaker endpoint for prediction.
 # It exposes a simple web interface for input and displays the prediction.
 # =============================================================================
 
 import os
 import joblib
 import pandas as pd
+import boto3
+import json
 from flask import Flask, request, render_template
 
 # Set base directory to ensure consistent file paths
@@ -18,19 +19,21 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # --- Create Flask App Instance ---
 app = Flask(__name__)
 
-# Load the trained machine learning model, scaler, and label encoders
-MODEL_PATH = os.path.join(BASE_DIR, "../model/model.pkl")
+# Load preprocessing artifacts (scaler and label encoders)
 SCALER_PATH = os.path.join(BASE_DIR, "../model/preprocess.pkl")
 ENCODERS_PATH = os.path.join(BASE_DIR, "../model/label_encoders.pkl")
 
-model = joblib.load(MODEL_PATH)
 scaler = joblib.load(SCALER_PATH)
 label_encoders = joblib.load(ENCODERS_PATH)
+
+# Initialize SageMaker client and endpoint name
+client = boto3.client("sagemaker-runtime")
+ENDPOINT_NAME = "sagemaker-scikit-learn-2025-06-03-16-09-14-531"  # Replace with your real endpoint name
 
 # Define the route for the home page
 @app.route('/')
 def home():
-    return render_template('index.html') # Simple HTML form to collect user input
+    return render_template('index.html')  # Simple HTML form to collect user input
 
 # Define the route for prediction handling
 @app.route('/predict', methods=['POST'])
@@ -54,7 +57,7 @@ def predict():
         native_country = request.form.get('native_country', 'United-States')
 
         # Organize inputs into a DataFrame
-        input_data = pd.DataFrame([[
+        input_data = pd.DataFrame([[ 
             age, workclass, education, marital_status, occupation,
             relationship, race, sex, capital_gain, capital_loss,
             hours_per_week, native_country
@@ -73,9 +76,17 @@ def predict():
         # Apply scaling
         input_scaled = scaler.transform(input_data)
 
-        # Make prediction
-        prediction = model.predict(input_scaled)
-        result = '>50K' if prediction[0] == 1 else '<=50K'
+        # Send scaled data to SageMaker endpoint
+        payload = input_scaled.tolist()[0]  # Convert single row to list
+        response = client.invoke_endpoint(
+            EndpointName=ENDPOINT_NAME,
+            ContentType="application/json",
+            Body=json.dumps(payload)
+        )
+
+        result_json = json.loads(response['Body'].read().decode("utf-8"))
+        prediction = result_json["prediction"]
+        result = '>50K' if prediction == 1 else '<=50K'
 
         return render_template('index.html', prediction_text=f'Predicted Income: {result}')
 
@@ -85,5 +96,5 @@ def predict():
 
 # Run the Flask application
 if __name__ == "__main__":
-     port = int(os.environ.get("PORT", 5000))
-     app.run(host="0.0.0.0", port=port)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)

@@ -300,6 +300,45 @@ Access the application at `http://<your-node-ip>:30036`
 
 ---
 
+## 8. AWS SageMaker Deployment
+
+To demonstrate scalable cloud-based ML inference, the model was deployed using **Amazon SageMaker**.
+
+### Model Packaging
+
+* The trained `LogisticRegression` model (`model.pkl`) was serialized using `joblib`.
+* It was then archived into `model.tar.gz` as required by SageMaker hosting specifications.
+* The archive was uploaded to an Amazon S3 bucket: s3://adult-income-model-deploy-ron123/model/model.tar.gz
+  
+ ### Hosting the Model
+
+* A SageMaker `SKLearnModel` was instantiated using the Scikit-learn container provided by AWS.
+* The model was deployed to a real-time endpoint using a `ml.m5.large` instance.
+* Python `boto3` and `sagemaker` SDKs were used for deployment automation.
+
+### Flask UI for SageMaker Endpoint
+
+* A separate `apps/app.py` was created to interact with the SageMaker endpoint.
+* User input is passed to the endpoint and predictions are rendered dynamically in the browser.
+
+### Live Testing the Endpoint
+
+* The deployed endpoint can be hit via:
+
+- HTML form in Flask app
+- Postman or curl:
+  ```bash
+  curl -X POST -H "Content-Type: application/json" -d '[25, "Private", "Bachelors", ...]' \
+  https://runtime.sagemaker.YOUR_REGION.amazonaws.com/endpoints/sagemaker-scikit-learn-2025-06-03-16-09-14-531/invocations
+  ```
+
+### Benefits of SageMaker Deployment
+
+* Fully managed, auto-scaling deployment environment.
+* Logs, metrics, and endpoint monitoring included.
+* Great for demonstrating production-ready deployment in a real cloud environment.
+
+
 ## Summary
 
 This project demonstrates a full end-to-end machine learning workflow:
@@ -310,6 +349,7 @@ This project demonstrates a full end-to-end machine learning workflow:
 4. Containerization using Docker and hosting on DockerHub
 5. CI/CD automation using GitHub Actions with deployment to Heroku
 6. Kubernetes orchestration using YAML configuration files
+7. Deployment vis AWS SageMaker (endpoint: `sagemaker-scikit-learn-2025-06-03-16-09-14-531`).
 
 Each step was designed to highlight real-world machine learning engineering practices with scalable, production-ready tools.
 
